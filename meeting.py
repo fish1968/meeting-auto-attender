@@ -65,7 +65,7 @@ def join_meetings(meetings, automator):
             sleep_duration = meeting_time - current_time - MEETING_EARLINESS
             next_meeting_time = datetime.timedelta(seconds=sleep_duration)
             if meeting[1] is not None:
-                logger.info('Next meeting link: {}'.format(meeting[1]))
+                logger.info('Next bmeeting link: {}'.format(meeting[1]))
             logger.info('Sleeping till the next meeting \"{}\", which is in {}'.format(meeting[4], next_meeting_time))
             time.sleep(sleep_duration)
         # Too much time has passed already
@@ -75,6 +75,7 @@ def join_meetings(meetings, automator):
                   .format(meeting[4], i + 1, MAX_LATENESS_FOR_MEETING / 60))
             continue
 
+        logger.debug(f'Joining meeting with link: {meeting[1]}, id = {meeting[2]}, password = *******')
         automator.join_meeting(meeting_link=meeting[1], meeting_id=meeting[2],
                                meeting_password=meeting[3])
 

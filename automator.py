@@ -63,7 +63,10 @@ class Automator:
             else:
                 # Open browser link for unknown
                 webbrowser.open(meeting_link)
+            logging.info("Processing with meeting links")
+            pass
         else:
+            logging.info("Processing with password and id")
             if meeting_id is not None and meeting_password is not None:
                 # Only zoom supported for joining with meeting id and password
                 self.zoom_automator.join_meeting_with_id(meeting_id, meeting_password)
@@ -135,18 +138,27 @@ class ZoomAutomator:
 
     def join_meeting_with_id(self, meeting_id, meeting_password):
         cur = round(time.time(), 0)
+        logging.info("Sleeping start")
         time.sleep(3)
+        logging.info("Sleeping end")
+        # Open zoom app
+        from os import system
+        system(self.bin_path)
+        logging.info(f"open {self.bin_path}")
         # locating the Zoom app
+        
         while True:
             zoom_app = pyautogui.locateOnScreen('images/final.png', confidence=self.confidence)
             if zoom_app is not None:
                 pyautogui.click(zoom_app)
                 break
-            elif (time.time() - cur) >= 120:
+            elif (time.time() - cur) >= 80:
                 logger.info("App Not opened")
                 break
-            # check every 30 secs
-            time.sleep(30)
+            # check every 10 secs
+            logging.info("Sleeping start")
+            time.sleep(10)
+            logging.info("Sleeping end")
 
         time.sleep(3)
 
@@ -160,20 +172,24 @@ class ZoomAutomator:
         # clicking the join button
         join_meeting_button = pyautogui.locateOnScreen('images/join.png', confidence=self.confidence)
         join_meeting_button = (
-            join_meeting_button[0] + 75, join_meeting_button[1] + 10, join_meeting_button[2], join_meeting_button[3])
+            join_meeting_button[0], join_meeting_button[1] + 10, join_meeting_button[2], join_meeting_button[3])
         pyautogui.moveTo(pyautogui.center(join_meeting_button))
+        logging.info("Press join meeting button")
         pyautogui.click(join_meeting_button)
 
         time.sleep(3)
 
         # checking and entering if meeting password is enabled
+        logging.info("Input password if there is (once only)")
         if pyautogui.locateOnScreen('images/password.png', confidence=self.confidence) is not None:
             pyautogui.typewrite(meeting_password)
             join_meeting_button = pyautogui.locateOnScreen('images/joinmeeting.png', confidence=0.9)
             pyautogui.click(join_meeting_button)
+        logging.info("Password done")
 
-        time.sleep(5)
+        time.sleep(3)
         # check whether the meeting has started and join with 'enableaudio'
+        self.mute_mic()
         while True:
             if pyautogui.locateOnScreen('images/audioenable.png', confidence=self.confidence) is not None:
                 join_with_audio = pyautogui.locateOnScreen('images/audioenable.png', confidence=0.9)
@@ -183,11 +199,10 @@ class ZoomAutomator:
                 leave_button = pyautogui.locateOnScreen('images/leave.png', confidence=0.9)
                 pyautogui.click(leave_button)
                 break
-            elif (time.time() - cur) >= 30 * 60:
+            elif (time.time() - cur) >= 80 * 60:
                 self.platform.close_zoom_process()
                 break
             time.sleep(5)
-        self.mute_mic()
 
     def join_meeting(self, meeting_link, meeting_id, meeting_password):
         if meeting_link is not None:

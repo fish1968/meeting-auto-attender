@@ -65,10 +65,13 @@ class Windows:
         self.platform_name = 'Windows'
 
     def find_zoom_binary(self):
-        sub_folders = [f.path for f in os.scandir('C:\\Users') if f.is_dir()]
+        sub_folders = [f.path for f in os.scandir("C:\\Users\\") if f.is_dir()]
         for i in sub_folders:
             if os.path.isfile(i + '\\AppData\\Roaming\\Zoom\\bin\\Zoom.exe'):
+                logging.info("find zoom's path: " + i+'\\AppData\\Roaming\\Zoom\\bin\\Zoom.exe')
                 return i + '\\AppData\\Roaming\\Zoom\\bin\\Zoom.exe'
+        logging.error("No zoom was found, use the default")
+        return r"C:\Users\97738\AppData\Roaming\Zoom\bin\Zoom.exe"
 
     def close_zoom_process(self):
         os.system("taskkill /f /im Zoom.exe")
